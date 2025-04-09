@@ -1,0 +1,50 @@
+@startuml
+title WarmHouse Container Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Person(user, "User", "Пользователь системы «Теплый дом»")
+System(WarmHouseSystem, "WarmHouse System", "Система управления IoT-устройствами и датчиками")
+System(DataBus, "Event Bus", "Шина событий для обмена сообщениями между сервисами")
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(WebApp, "Web Application", "JavaScript, React", "Интерфейс для пользователя")
+  Container(ApiGateway, "API Gateway", "Kong", "Управляет входящими запросами и маршрутизацией")
+  Container(UserService, "User Service", "Java, Spring Boot", "Управляет пользователями и их данными")
+  Container(DevicesService, "Devices Service", "Java, Spring Boot", "Управляет устройствами и их состоянием")
+  Container(SensorsService, "Sensors Service", "Java, Spring Boot", "Управляет датчиками и получает их данные")
+  ContainerDb(DevicesDatabase, "Devices Database", "PostgreSQL", "Хранит информацию об устройствах, их данные и конфигурацию")
+  ContainerDb(SensorsDatabase, "Sensors Database", "PostgreSQL", "Хранит информацию о датчиках, их данные и конфигурацию")
+  ContainerDb(UserDatabase, "User Database", "PostgreSQL", "Хранит информацию о пользователях")
+  Container(auth, "Keycloak", "Сервис аутентификации и авторизации")
+}
+
+Container_Boundary(DataBus, "WarmHouse System") {
+  Container(broker, "Messages Broker", "Kafka")
+}
+
+System_Ext(devices, "Devices", "Управляемые устройства")
+System_Ext(sensors, "Sensors", "Датчики температуры")
+
+Rel(user, WebApp, "Управляет устройствами IoT, регистрирует новые, отслеживает показания датчиков")
+Rel(WebApp, ApiGateway, "Запросы в систему")
+Rel(ApiGateway, UserService, "Получает данные о пользователе, управляет кабинетом")
+Rel(ApiGateway, DevicesService, "Управляет устройствами")
+Rel(ApiGateway, SensorsService, "Получает данные с датчиков")
+
+Rel(DevicesService, DevicesDatabase, "Получает, сохраняет данные об устройствах, их конфигурацию")
+Rel(DevicesService, devices, "Регистрация устройств и передача управляющих команд")
+Rel(SensorsService, SensorsDatabase, "Получает, сохраняет данные о датчиках")
+Rel(SensorsService, sensors, "Регистрация датчиков")
+
+Rel(UserService, UserDatabase, "Получает, сохраняет данные о пользователе, добавляет новых")
+Rel(UserService, auth, "Регистрация, аутентификация, авторизация")
+
+Rel(devices, broker, "Передача данных о состоянии устройства")
+Rel(sensors, broker, "Передача данных датчиков")
+Rel_Neighbor(broker, DevicesService, "Получение данных от IoT-устройств")
+Rel_Neighbor(broker, SensorsService, "Получение данных от датчиков")
+
+@enduml

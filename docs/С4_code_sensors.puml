@@ -1,0 +1,33 @@
+@startuml
+title WarmHouse Sensors Service Code Diagram
+
+top to bottom direction
+
+class Sensor {
+  +String guid
+  +String name
+  +String type
+  +Integer ownerId
+  +List<SensorData> sensorData
+  +void register()
+}
+
+interface SensorData {
+  +string toJson()
+}
+
+class SensorsService {
+  +void registerSensor()
+  +void removeSensor()
+}
+
+class KafkaConsumer {
+  +Settings settings
+  +void consume()
+}
+
+Sensor "1" -- "0..*" SensorData : has
+KafkaConsumer -- Sensor : addData
+SensorsService -- Sensor : register and remove
+
+@enduml

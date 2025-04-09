@@ -1,0 +1,33 @@
+@startuml
+title WarmHouse Sensors Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(SensorsService, "Sensors Service", "Java, Spring Boot", "Управляет датчиками и их состоянием")
+  ContainerDb(SensorsDatabase, "Sensors Database", "PostgreSQL", "Хранит информацию о датчиках, их данные и конфигурацию")
+  Container(Kafka, "Data Bus", "Kafka", "Шина событий для обмена сообщениями между сервисами")
+}
+
+Container(SensorsService, "Sensors Service", "Java, Spring Boot") {
+  Component(SensorsController, "SensorsController", "Принимает и валидирует запросы на получение данных датчиков и регистрацию новых")
+  Component(ServiceLayer, "Service Layer", "Бизнес-логика")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+  Component(KafkaConsumer, "Kafka Consumer", "Получает данные от датчиков")
+  Component(SensorsClient, "Sensors Client", "Предоставляет интерфейс для взаимодействия с датчиком")
+}
+
+Container_Ext(Sensors, "Sensors", "Датчики")
+
+Rel(SensorsController, ServiceLayer, "Обращается к бизнес-логике")
+Rel(ServiceLayer, RepositoryLayer, "Обращается к слою данных")
+Rel(ServiceLayer, SensorsClient, "Регистрирует новые устройства")
+Rel(KafkaConsumer, Kafka, "Принимает события показаний датчиков")
+Rel(KafkaConsumer, RepositoryLayer, "Сохраняет события изменений показаний датчиков")
+Rel(RepositoryLayer, SensorsDatabase, "Обращается к базе данных")
+Rel(SensorsClient, Sensors, "Регистрирует новые устройства")
+Rel(Sensors, Kafka, "Отправляет показания датчиков")
+
+@enduml
