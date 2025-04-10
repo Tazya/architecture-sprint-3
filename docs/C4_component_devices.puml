@@ -1,0 +1,33 @@
+@startuml
+title WarmHouse Devices Service Component Diagram
+
+top to bottom direction
+
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Component.puml
+
+Container_Boundary(WarmHouseSystem, "WarmHouse System") {
+  Container(DevicesService, "Devices Service", "Java, Spring Boot", "Управляет устройствами и их состоянием")
+  ContainerDb(DevicesDatabase, "Devices Database", "PostgreSQL", "Хранит информацию об устройствах, их данные и конфигурацию")
+  Container(Kafka, "Data Bus", "Kafka", "Шина событий для обмена сообщениями между сервисами")
+}
+
+Container(DevicesService, "Devices Service", "Java, Spring Boot") {
+  Component(DevicesController, "DevicesController", "Принимает и валидирует запросы на управление устройствами")
+  Component(ServiceLayer, "Service Layer", "Бизнес-логика")
+  Component(RepositoryLayer, "Repository Layer", "Логика доступа к данным")
+  Component(KafkaConsumer, "Kafka Consumer", "Получает данные от IoT-устройств")
+  Component(DevicesClient, "Devices Client", "Предоставляет интерфейс для взаимодействия с устройствами")
+}
+
+Container_Ext(Devices, "Devices", "Управляемые устройства")
+
+Rel(DevicesController, ServiceLayer, "Обращается к бизнес-логике")
+Rel(ServiceLayer, RepositoryLayer, "Обращается к слою данных")
+Rel(ServiceLayer, DevicesClient, "Отправляет команды на устройства")
+Rel(KafkaConsumer, Kafka, "Принимает события о состоянии устройств")
+Rel(KafkaConsumer, RepositoryLayer, "Сохраняет события изменений статуса устройств")
+Rel(RepositoryLayer, DevicesDatabase, "Обращается к базе данных")
+Rel(DevicesClient, Devices, "Отправляет команды на устройства")
+Rel(Devices, Kafka, "Отправляет данные о состоянии устройства")
+
+@enduml
