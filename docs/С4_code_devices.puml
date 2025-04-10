@@ -4,16 +4,18 @@ title WarmHouse Devices Service Code Diagram
 top to bottom direction
 
 class Device {
-  +String guid
+  +Integer id
   +String name
   +String type
-  +Integer ownerId
+  +String model
+  +String serialNumber
+  +Integer userId
   +DeviceState state
   +void register()
 }
 
 class DeviceState {
-  +String stateName
+  +String state
   +Date changedAt
   +void changeState(string stateName)
 }

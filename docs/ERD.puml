@@ -1,0 +1,64 @@
+@startuml
+title WarmHouse Database ERD
+skinparam linetype ortho
+
+entity "User" as user {
+  *id : number <<generated>>
+  --
+  *name : string
+  *access_token : text
+  *refresh_token : text
+  *created_at : timestamp
+}
+
+entity "Sensor" as sensor {
+  *id : number <<generated>>
+  --
+  *name : string
+  *type : string
+  *state : string
+  *model : string
+  *serial_number : text
+  *user_id : number <<FK>>
+  *created_at : timestamp
+  *updated_at : timestamp
+  *other_details : text (JSON)
+}
+
+entity "SensorData" as sensorData {
+  *id : number <<generated>>
+  --
+  *type : string
+  *data : text (JSON)
+  *sensor_id : number <<FK>>
+  *created_at : timestamp
+}
+
+entity "Device" as device {
+  *id : number <<generated>>
+  --
+  *name : string
+  *type : string
+  *model : string
+  *serial_number : string
+  *user_id : number <<FK>>
+  *created_at : timestamp
+  *updated_at : timestamp
+  *other_details : text (JSON)
+}
+
+entity "DeviceState" as deviceState {
+  *id : number <<generated>>
+  --
+  *state : string
+  *data : text (JSON)
+  *device_id : number <<FK>>
+  *created_at : timestamp
+}
+
+user ||..o{ sensor
+user ||..o{ device
+sensor ||..o{ sensorData
+device ||..|{ deviceState
+
+@enduml

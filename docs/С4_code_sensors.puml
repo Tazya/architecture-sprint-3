@@ -4,10 +4,12 @@ title WarmHouse Sensors Service Code Diagram
 top to bottom direction
 
 class Sensor {
-  +String guid
+  +Integer id
   +String name
   +String type
-  +Integer ownerId
+  +String model
+  +String serialNumber
+  +Integer userId
   +List<SensorData> sensorData
   +void register()
 }
